@@ -1,9 +1,3 @@
-class ExtendedArray extends Array{
-    findByValue(value){
-        return this.find(element => { element === value; });
-    }
-}
-
 class MediaAudioController{
     static _controllerList = new ExtendedArray();
 
@@ -15,7 +9,7 @@ class MediaAudioController{
     }
 
     static getOrCreate(videoElement){
-        const findResult = this._controllerList.find(videoElement);
+        const findResult = this._controllerList.find(c => { c._source.videoElement === videoElement; });
         if (findResult !== undefined){
             return findResult;
         }
