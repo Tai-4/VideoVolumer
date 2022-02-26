@@ -1,15 +1,15 @@
 class MediaAudioController{
-    static _controllerList = new ExtendedArray();
+    static _controllerList = [];
 
     constructor(mediaElement){
         this._context = new (window.AudioContext || window.webkitAudioContext);
         this._source = this._context.createMediaElementSource(mediaElement);
         this._gainNode = this._context.createGain();
-        this.constructor._sourcedVideoElementList.push(this);
+        this.constructor._controllerList.push(this);
     }
 
     static getOrCreate(videoElement){
-        const findResult = this._controllerList.find(c => { c._source.videoElement === videoElement; });
+        const findResult = this._controllerList.find(c => c._source.mediaElement === videoElement);
         if (findResult !== undefined){
             return findResult;
         }
