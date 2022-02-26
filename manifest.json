@@ -1,0 +1,25 @@
+{
+    "name": "Video Volumer",
+    "version": "1.0.0",
+    "manifest_version": 3,
+    "description": "Boosts the video volume.",
+    
+    "permissions":[
+      "tabs"
+    ],
+  
+    "content_scripts": [
+      {
+        "matches": ["<all_urls>"],
+        "js": [
+          "./ContentScript/content.js"
+        ]
+      }
+    ],
+
+    "action": {
+      "default_title": "Video Volumer",
+      "default_popup": "./Popup/popup.html"
+    }
+  }
+  
