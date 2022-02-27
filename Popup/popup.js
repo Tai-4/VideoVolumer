@@ -2,7 +2,7 @@ class Input{
     static{
         this.volumeLevel = {
             element: document.getElementById("volumeLevelInput"),
-            getValue: function(){ return; }
+            getValue: function(){ return this.element.value; }
         };
     }
 }
@@ -11,28 +11,28 @@ class Display{
     static{
         this.pagefavicon = {
             element: document.getElementById("pagefaviconDisplay"),
-            set = function(value){ element.src = value; }
+            set: function(value){ this.element.src = value; }
         };
         this.pageTitle = {
             element: document.getElementById("pageTitleDisplay"),
-            set = function(value){ element.innerText = value; }
+            set: function(value){ this.element.innerText = value; }
         };
         this.volumeLevel ={
             element: document.getElementById("volumeLevelDisplay"),
-            set = function(value){ content.innerText = value + "%"; }
+            set: function(value){ this.element.innerText = value + "%"; }
         };
     }
 }
 
 main();
 
-function main(){
-    initializeUI();
+async function main(){
+    await initializeUI();
 }
 
-function initializeUI(){
+async function initializeUI(){
     const currentTab = await getCurrentTab();
-    Display.pagefavicon.set();
+    Display.pagefavicon.set(currentTab.favIconUrl);
     Display.pageTitle.set(currentTab.title);
     Display.volumeLevel.set(100);
 }
