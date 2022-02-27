@@ -5,6 +5,7 @@
     "description": "Boosts the video volume.",
     
     "permissions":[
+      "declarativeContent",
       "tabs"
     ],
   
