@@ -37,8 +37,18 @@ class VideoElementManager{
         return this.exists();
     }
 
+    static getCollection(callback){
+        if (callback === undefined){
+            return this._collection;
+        }
+
+        for (const videoElement of this._collection) {
+            callback(videoElement);
+        }
+    }
+
     static get(index){
-        return this._collection[index];
+        return this._collection.item(index);
     }
 
     static async getAsync(index){
@@ -57,9 +67,10 @@ function switchProcessByMessage(message){
         case "Get-Volume-Element-Existence":
             return VideoElementManager.existsAsync();
         case "Update-Volume":
-            const videoElement = VideoElementManager.get(0);
-            const controller = MediaAudioController.getOrCreate(videoElement);
-            controller.updateVolume(message.volumeLevel);
+            VideoElementManager.getCollection((videoElement) => {
+                const controller = MediaAudioController.getOrCreate(videoElement);
+                controller.updateVolume(message.volumeLevel);
+            })
             break;
         default:
             throw new Error("Invalid message");
