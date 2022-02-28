@@ -2,16 +2,22 @@
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
-    <title>popup</title>
+    <title>Video Volumer</title>
     <link rel="stylesheet" href="popup.css">
 </head>
 <body>
-    <img id="pagefaviconDisplay">
-    <p id="pageTitleDisplay"></p>
-
-    <p id="volumeLevelDisplay"></p>
-    <p>%</p>
-    <input id="volumeLevelInput">
+    <div class="page-info">
+        <img class="page-info__item__favicon" alt="NoImage">
+        <p class="page-info__item__title"></p>
+    </div>
+    <div class="volume-info">
+        <p class="volume-info__level"></p>
+        <p>%</p>
+    </div>
+    <div class="volume-controller">
+        <label for="volume-controller__slider">Volume</label>
+        <input class="volume-controller__slider" id="volume-controller__slider" type="range" min="0" max="300" step="10">
+    </div>
 
     <script src="popup.js"></script>
 </body>
