@@ -8,7 +8,7 @@ class Input extends DocumentManager{
     static{
         this.volumeLevel = {
             element: this.findElementByClassName("volume-controller__slider"),
-            getValue: function(){ return this.element.value; }
+            get: function(){ return this.element.value; }
         };
     }
 }
@@ -33,6 +33,10 @@ class Display extends DocumentManager{
 main();
 
 async function main(){
+    await initialize();
+}
+
+async function initialize(){
     await initializeUI();
     Input.volumeLevel.element.addEventListener("input", requestVolumeUpdate, false)
 }
@@ -54,8 +58,8 @@ async function getCurrentTab(){
 
 async function requestVolumeUpdate(){
     const currentTab = await getCurrentTab();
-    const volumeLevel = this.value / 100;
-    
+    const volumeLevel = Input.volumeLevel.get() / 100;
+
     const message = { content: "Update-Volume", volumeLevel: volumeLevel };
     await chrome.tabs.sendMessage(currentTab.id, message);
 }
