@@ -7,7 +7,7 @@ class DocumentManager{
 class Input extends DocumentManager{
     static{
         this.volumeLevel = {
-            element: this.findElementByClassName("volume-controller__slider"),
+            element: this.findElementByClassName("settings__volume-controller__slider"),
             get: function(){ return this.element.value; }
         };
     }
@@ -24,7 +24,7 @@ class Display extends DocumentManager{
             set: function(value){ this.element.innerText = value; }
         };
         this.volumeLevel ={
-            element: this.findElementByClassName("volume-info__level"),
+            element: this.findElementByClassName("settings__volume-level__current"),
             set: function(value){ this.element.innerText = value; }
         };
     }
@@ -46,7 +46,6 @@ async function initializeUI(){
 
     Display.pagefavicon.set(currentTab.favIconUrl);
     Display.pageTitle.set(currentTab.title);
-    Display.volumeLevel.set(100);
 }
 
 async function getCurrentTab(){

@@ -10,14 +10,22 @@
         <img class="page-info__item__favicon" alt="NoImage">
         <p class="page-info__item__title"></p>
     </div>
-    <div class="volume-info">
-        <p class="volume-info__level"></p>
-        <p>%</p>
+    
+    <div class="settings">
+        <h1 class="settings__heading">Settings</h1>
+        <div class="settings__volume-controller">
+            <input class="settings__volume-controller__slider" type="range" min="0" max="500" step="10" aria-label="Volume" autofocus="true">
+        </div>
+        <div class="settings__volume-level">
+            <p class="settings__volume-level__min">0</p>
+            <p class="settings__volume-level__current">100</p>
+            <p class="settings__volume-level__max">500</p>
+        </div>
+        <div class="settings__left-right-ear-output">
+    
+        </div>
     </div>
-    <div class="volume-controller">
-        <label for="volume-controller__slider">Volume</label>
-        <input class="volume-controller__slider" id="volume-controller__slider" type="range" min="0" max="300" step="10">
-    </div>
+    
 
     <script src="popup.js"></script>
 </body>
