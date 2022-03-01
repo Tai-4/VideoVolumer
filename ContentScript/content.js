@@ -62,10 +62,12 @@ function main(){
     chrome.runtime.onMessage.addListener(switchProcessByMessage)
 }
 
-function switchProcessByMessage(message){
+function switchProcessByMessage(message, sender, sendResponse){
     switch (message.content) {
-        case "Get-Volume-Element-Existence":
-            return VideoElementManager.existsAsync();
+        case "Get-Video-Element-Exists":
+            const exists = VideoElementManager.exists();
+            sendResponse({ videoElementExists: exists });
+            break;
         case "Update-Volume":
             VideoElementManager.getCollection((videoElement) => {
                 const controller = MediaAudioController.getOrCreate(videoElement);

@@ -37,15 +37,19 @@ async function main(){
 }
 
 async function initialize(){
+    window.currentTab = await getCurrentTab();
     await initializeUI();
+
+    Input.volumeLevel.element.addEventListener("input", updateDisplayValue, false)
     Input.volumeLevel.element.addEventListener("input", requestVolumeUpdate, false)
 }
 
 async function initializeUI(){
-    const currentTab = await getCurrentTab();
+    const videoElementExists = await requestVideoElementExistence().catch(() => { return false; });
 
-    Display.pagefavicon.set(currentTab.favIconUrl);
-    Display.pageTitle.set(currentTab.title);
+    Display.pagefavicon.set(window.currentTab.favIconUrl);
+    Display.pageTitle.set(window.currentTab.title);
+    Input.volumeLevel.element.disabled = !videoElementExists;
 }
 
 async function getCurrentTab(){
@@ -55,10 +59,23 @@ async function getCurrentTab(){
     return currentTab;
 }
 
+function requestVideoElementExistence(){
+    return new Promise((resolve) => {
+        const message = { content: "Get-Video-Element-Exists" };
+        chrome.tabs.sendMessage(window.currentTab.id, message, (response) => {
+            resolve(response.videoElementExists);
+        });
+    });
+}
+
 async function requestVolumeUpdate(){
-    const currentTab = await getCurrentTab();
     const volumeLevel = Input.volumeLevel.get() / 100;
 
     const message = { content: "Update-Volume", volumeLevel: volumeLevel };
-    await chrome.tabs.sendMessage(currentTab.id, message);
+    await chrome.tabs.sendMessage(window.currentTab.id, message);
+}
+
+function updateDisplayValue(){
+    const volumeLevel = Input.volumeLevel.get();
+    Display.volumeLevel.set(volumeLevel);
 }
