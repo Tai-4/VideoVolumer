@@ -58,8 +58,8 @@ class VideoElementManager{
     }
 }
 
-class Data {
-    static {
+class Data{
+    static{
         this.volumeLevel = 1;
         this.panLevel = 0;
     }
