@@ -22,6 +22,13 @@ class MediaAudioController{
         this._gainNode.connect(this._context.destination)
         this._gainNode.gain.value = volumeLevel;
     }
+
+    updateStereoPan(panLevel){
+        const panner = new StereoPannerNode(this._context, { pan: panLevel });
+        this._source.connect(this._gainNode);
+        this._gainNode.connect(panner)
+        this.panner.connect(this._context.destination);
+    }
 }
 
 class VideoElementManager{
@@ -72,6 +79,12 @@ function switchProcessByMessage(message, sender, sendResponse){
             VideoElementManager.getCollection((videoElement) => {
                 const controller = MediaAudioController.getOrCreate(videoElement);
                 controller.updateVolume(message.volumeLevel);
+            })
+            break;
+        case "Update-Stereo-Pan":
+            VideoElementManager.getCollection((videoElement) => {
+                const controller = MediaAudioController.getOrCreate(videoElement);
+                controller.updateStereoPan(message.panLevel);
             })
             break;
         default:
