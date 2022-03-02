@@ -8,13 +8,20 @@ class MediaAudioController{
         this.constructor._controllerList.push(this);
     }
 
-    static getOrCreate(videoElement){
-        const findResult = this._controllerList.find(c => c._source.mediaElement === videoElement);
-        if (findResult !== undefined){
-            return findResult;
+    static getList(callback){
+        if (callback === undefined){
+            return this._controllerList;
         }
 
-        return new MediaAudioController(videoElement);
+        _controllerList.forEach(controller => {
+            callback(controller);
+        });
+    }
+
+    static getOrCreate(videoElement){
+        const findResult = this._controllerList.find(c => c._source.mediaElement === videoElement);
+        const controller = findResult ?? new MediaAudioController(videoElement);
+        return controller;
     }
 
     updateVolume(volumeLevel){
@@ -35,14 +42,6 @@ class VideoElementManager{
     static {
         this._collection = document.getElementsByTagName("video");
     }
-    
-    static exists(){
-        return this._collection.length !== 0;
-    }
-
-    static async existsAsync(){
-        return this.exists();
-    }
 
     static getCollection(callback){
         if (callback === undefined){
@@ -57,9 +56,12 @@ class VideoElementManager{
     static get(index){
         return this._collection.item(index);
     }
+}
 
-    static async getAsync(index){
-        return this.get(index);
+class Data{
+    static{
+        this.volumeLevel = 1;
+        this.panLevel = 0;
     }
 }
 
@@ -71,20 +73,22 @@ function main(){
 
 function switchProcessByMessage(message, sender, sendResponse){
     switch (message.content) {
-        case "Get-Video-Element-Exists":
-            const exists = VideoElementManager.exists();
-            sendResponse({ videoElementExists: exists });
+        case "Get-Settings-Value":
+            const response = { volumeLevel: Data.volumeLevel, panLevel: Data.panLevel};
+            sendResponse(response);
             break;
-        case "Update-Volume":
+        case "Post-Volume-Level":
+            Data.volumeLevel = message.volumeLevel;
             VideoElementManager.getCollection((videoElement) => {
                 const controller = MediaAudioController.getOrCreate(videoElement);
-                controller.updateVolume(message.volumeLevel);
+                controller.updateVolume(Data.volumeLevel);
             })
             break;
-        case "Update-Stereo-Pan":
+        case "Post-Stereo-Pan-Level":
+            Data.panLevel = message.panLevel;
             VideoElementManager.getCollection((videoElement) => {
                 const controller = MediaAudioController.getOrCreate(videoElement);
-                controller.updateStereoPan(message.panLevel);
+                controller.updateStereoPan(Data.panLevel);
             })
             break;
         default:
