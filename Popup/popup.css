@@ -40,25 +40,25 @@ input[type=range]:focus-visible {
     width: 100%;
 }
 
-.settings__volume-level {
+.settings__volume-persent {
     display: flex;
     justify-content: space-between;
 }
 
-.settings__volume-level__min, .settings__volume-level__max {
+.settings__volume-persent__min, .settings__volume-persent__max {
     color: #a0a0a0;
 }
 
-.settings__volume-level__current {
+.settings__volume-persent__current {
     color: #303030;
     font-weight: bold;
 }
 
-.settings__volume-level__current::before {
+.settings__volume-persent__current::before {
     content: "Volume: ";
 }
 
-.settings__volume-level__min::after, .settings__volume-level__current::after, .settings__volume-level__max::after {
+.settings__volume-persent__min::after, .settings__volume-persent__current::after, .settings__volume-persent__max::after {
     content: "%";
 }
 
