@@ -1,3 +1,12 @@
+class Binding{
+    constructor(source, eventType, callback){
+        source.element.addEventListener(eventType, () => {
+            const value = source.get();
+            callback(value);
+        }, false);
+    }
+}
+
 class ElementManager{
     static findByClassName(className){
         return document.getElementsByClassName(className)[0];
@@ -6,10 +15,10 @@ class ElementManager{
 
 class Input extends ElementManager{
     static{
-        this.volumePersent = {
-            element: this.findByClassName("settings__volume-controller__slider"),
+        this.volumeLevel = {
+            element: this.findByClassName("settings__volume-level-controller__slider"),
             get: function(){ return this.element.value; },
-            set: function(value){ this.element.value = value; },
+            set: function(value){ this.element.value = value; }
         };
     }
 }
@@ -26,6 +35,7 @@ class Display extends ElementManager{
         };
         this.volumePersent = {
             element: this.findByClassName("settings__volume-persent__current"),
+            binding: new Binding(Input.volumeLevel, "input", function(value){ Display.volumePersent.set(value * 10 * 10); }),
             set: function(value){ this.element.textContent = value; }
         };
     }
@@ -61,10 +71,7 @@ async function initialize(){
     Data.currentTab = await getCurrentTab();
     await initializeUI();
     
-    Input.volumePersent.element.addEventListener("input", requestPostVolumeLevel, false);
-    Input.volumePersent.element.addEventListener("input", (event) => {
-        Display.volumePersent.set(event.currentTarget.value);
-    }, false);
+    Input.volumeLevel.element.addEventListener("input", requestPostVolumeLevel, false);
 }
 
 async function getCurrentTab(){
@@ -86,9 +93,8 @@ function initializePageInfo(){
 
 async function initializeSettingsValue(){
     const settingsValue = await requestSettingsValue();
-    const volumePersent = settingsValue.volumeLevel * 100;
-    Input.volumePersent.set(volumePersent);
-    Display.volumePersent.set(volumePersent);
+    Input.volumeLevel.set(settingsValue.volumeLevel);
+    Display.volumePersent.set(settingsValue.volumeLevel * 10 * 10);
 }
 
 function requestSettingsValue(){
@@ -97,8 +103,6 @@ function requestSettingsValue(){
 }
 
 function requestPostVolumeLevel(){
-    const volumePersent = Input.volumePersent.get();
-
-    const message = { content: "Post-Volume-Level", volumeLevel: volumePersent / 100 };
+    const message = { content: "Post-Volume-Level", volumeLevel: Input.volumeLevel.get() };
     MessagePassing.request(message);
 }
