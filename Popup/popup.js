@@ -1,33 +1,54 @@
-class DocumentManager{
-    static findElementByClassName(className){
+class ElementManager{
+    static findByClassName(className){
         return document.getElementsByClassName(className)[0];
     }
 }
 
-class Input extends DocumentManager{
+class Input extends ElementManager{
     static{
-        this.volumeLevel = {
-            element: this.findElementByClassName("settings__volume-controller__slider"),
-            get: function(){ return this.element.value; }
+        this.volumePersent = {
+            element: this.findByClassName("settings__volume-controller__slider"),
+            get: function(){ return this.element.value; },
+            set: function(value){ this.element.value = value; },
         };
     }
 }
 
-class Display extends DocumentManager{
+class Display extends ElementManager{
     static{
         this.pagefavicon = {
-            element: this.findElementByClassName("page-info__item__favicon"),
+            element: this.findByClassName("page-info__item__favicon"),
             set: function(value){ this.element.src = value; }
         };
         this.pageTitle = {
-            element: this.findElementByClassName("page-info__item__title"),
-            set: function(value){ this.element.innerText = value; }
+            element: this.findByClassName("page-info__item__title"),
+            set: function(value){ this.element.textContent = value; }
         };
-        this.volumeLevel ={
-            element: this.findElementByClassName("settings__volume-level__current"),
-            set: function(value){ this.element.innerText = value; }
+        this.volumePersent = {
+            element: this.findByClassName("settings__volume-persent__current"),
+            set: function(value){ this.element.textContent = value; }
         };
     }
+}
+
+class MessagePassing{
+    static{
+        getCurrentTab().then((currentTab) => {
+            this.tabId = currentTab.id;
+        });
+    }
+
+    static request(message){
+        return new Promise(async (resolve) => {
+            await chrome.tabs.sendMessage(this.tabId, message, (response) => {
+                resolve(response);
+            });
+        });
+    }
+}
+
+class Data{
+    static currentTab;
 }
 
 main();
@@ -37,19 +58,13 @@ async function main(){
 }
 
 async function initialize(){
-    window.currentTab = await getCurrentTab();
+    Data.currentTab = await getCurrentTab();
     await initializeUI();
-
-    Input.volumeLevel.element.addEventListener("input", updateDisplayValue, false)
-    Input.volumeLevel.element.addEventListener("input", requestVolumeUpdate, false)
-}
-
-async function initializeUI(){
-    const videoElementExists = await requestVideoElementExistence().catch(() => { return false; });
-
-    Display.pagefavicon.set(window.currentTab.favIconUrl);
-    Display.pageTitle.set(window.currentTab.title);
-    Input.volumeLevel.element.disabled = !videoElementExists;
+    
+    Input.volumePersent.element.addEventListener("input", requestPostVolumeLevel, false);
+    Input.volumePersent.element.addEventListener("input", (event) => {
+        Display.volumePersent.set(event.currentTarget.value);
+    }, false);
 }
 
 async function getCurrentTab(){
@@ -59,23 +74,31 @@ async function getCurrentTab(){
     return currentTab;
 }
 
-function requestVideoElementExistence(){
-    return new Promise((resolve) => {
-        const message = { content: "Get-Video-Element-Exists" };
-        chrome.tabs.sendMessage(window.currentTab.id, message, (response) => {
-            resolve(response.videoElementExists);
-        });
-    });
+async function initializeUI(){
+    initializePageInfo();
+    await initializeSettingsValue();
 }
 
-async function requestVolumeUpdate(){
-    const volumeLevel = Input.volumeLevel.get() / 100;
-
-    const message = { content: "Update-Volume", volumeLevel: volumeLevel };
-    await chrome.tabs.sendMessage(window.currentTab.id, message);
+function initializePageInfo(){
+    Display.pagefavicon.set(Data.currentTab.favIconUrl);
+    Display.pageTitle.set(Data.currentTab.title);
 }
 
-function updateDisplayValue(){
-    const volumeLevel = Input.volumeLevel.get();
-    Display.volumeLevel.set(volumeLevel);
+async function initializeSettingsValue(){
+    const settingsValue = await requestSettingsValue();
+    const volumePersent = settingsValue.volumeLevel * 100;
+    Input.volumePersent.set(volumePersent);
+    Display.volumePersent.set(volumePersent);
+}
+
+function requestSettingsValue(){
+    const message = { content: "Get-Settings-Value" };
+    return MessagePassing.request(message);
+}
+
+function requestPostVolumeLevel(){
+    const volumePersent = Input.volumePersent.get();
+
+    const message = { content: "Post-Volume-Level", volumeLevel: volumePersent / 100 };
+    MessagePassing.request(message);
 }
