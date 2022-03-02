@@ -42,17 +42,15 @@ class Display extends ElementManager{
 }
 
 class MessagePassing{
-    static{
-        getCurrentTab().then((currentTab) => {
-            this.tabId = currentTab.id;
-        });
-    }
-
-    static request(message){
+    static request(message, needsResponse = false){
         return new Promise(async (resolve) => {
-            await chrome.tabs.sendMessage(this.tabId, message, (response) => {
-                resolve(response);
-            });
+            if (needsResponse){
+                await chrome.tabs.sendMessage(Data.currentTab.id, message, (response) => {
+                    resolve(response);
+                });
+            } else {
+                await chrome.tabs.sendMessage(Data.currentTab.id, message);
+            }
         });
     }
 }
@@ -99,7 +97,7 @@ async function initializeSettingsValue(){
 
 function requestSettingsValue(){
     const message = { content: "Get-Settings-Value" };
-    return MessagePassing.request(message);
+    return MessagePassing.request(message, true);
 }
 
 function requestPostVolumeLevel(){
