@@ -8,6 +8,18 @@ class Binding{
 }
 
 class ElementManager{
+    static {
+        this._loadingAnimation = this._createLoadingAnimation();
+    }
+
+    static _createLoadingAnimation(){
+        const noImageBox = this.create("div", "loading-box page-info__item__favicon");
+        const noImageMark = this.create("div", "loading-box__mark");
+        noImageBox.appendChild(noImageMark);
+
+        return noImageBox;
+    }
+
     static findByClassName(className){
         return document.getElementsByClassName(className)[0];
     }
@@ -17,6 +29,11 @@ class ElementManager{
         element.className = className;
 
         return element;
+    }
+
+    static replaceToLoadingAnimation(replacedElement){
+        replacedElement.hidden = true;
+        this.insertBefore(this._loadingAnimation, replacedElement);
     }
 
     static insertBefore(insertElement, criteriaElement){
@@ -86,11 +103,20 @@ class MessagePassing{
     }
 }
 
+class TabManager{
+    static async getCurrentTab(){
+        const queryOptions = { active: true, currentWindow: true };
+        const tabList = await chrome.tabs.query(queryOptions);
+        const currentTab = tabList[0];
+        return currentTab;
+    }
+}
+
 class Data{
     static currentTab;
 
     static async initialize(){
-        this.currentTab = await getCurrentTab();
+        this.currentTab = await TabManager.getCurrentTab();
     }
 }
 
@@ -108,13 +134,6 @@ async function initialize(){
     Input.stereoPanLevel.element.addEventListener("input", MessagePassing.requestPostStereoPanLevel, false);
 }
 
-async function getCurrentTab(){
-    const queryOptions = { active: true, currentWindow: true };
-    const tabList = await chrome.tabs.query(queryOptions);
-    const currentTab = tabList[0];
-    return currentTab;
-}
-
 async function initializeUI(){
     initializePageInfo();
     await initializeSettingsValue();
@@ -125,12 +144,7 @@ function initializePageInfo(){
     if (Data.currentTab.favIconUrl){
         Display.pagefavicon.set(Data.currentTab.favIconUrl);
     } else {
-        const noImageBox = ElementManager.create("div", "no-image-box");
-        const noImageMark = ElementManager.create("div", "no-image-box__mark");
-        noImageBox.appendChild(noImageMark);
-
-        Display.pagefavicon.element.hidden = true;
-        ElementManager.insertBefore(noImageBox, Display.pagefavicon.element);
+        ElementManager.replaceToLoadingAnimation(Display.pagefavicon.element);
     }
 }
 
@@ -141,5 +155,3 @@ async function initializeSettingsValue(){
     Display.volumePersent.set(settingsValue.volumeLevel * 10 * 10);
     Input.stereoPanLevel.set(settingsValue.stereoPanLevel);
 }
-
-//runtime.lastError
