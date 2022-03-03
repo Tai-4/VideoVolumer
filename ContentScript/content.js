@@ -5,6 +5,9 @@ class MediaAudioController{
         this._context = new (window.AudioContext || window.webkitAudioContext);
         this._source = this._context.createMediaElementSource(mediaElement);
         this._gainNode = this._context.createGain();
+        this._panner = new StereoPannerNode(this._context, { pan: 0 });
+        this._connect();
+
         this.constructor._controllerList.push(this);
     }
 
@@ -24,17 +27,19 @@ class MediaAudioController{
         return controller;
     }
 
+    _connect(){
+        this._source
+        .connect(this._gainNode)
+        .connect(this._panner)
+        .connect(this._context.destination);
+    }
+
     updateVolume(volumeLevel){
-        this._source.connect(this._gainNode);
-        this._gainNode.connect(this._context.destination)
         this._gainNode.gain.value = volumeLevel;
     }
 
-    updateStereoPan(panLevel){
-        const panner = new StereoPannerNode(this._context, { pan: panLevel });
-        this._source.connect(this._gainNode);
-        this._gainNode.connect(panner)
-        this.panner.connect(this._context.destination);
+    updateStereoPan(stereoPanLevel){
+        this._panner.pan.value = stereoPanLevel;
     }
 }
 
@@ -61,7 +66,7 @@ class VideoElementManager{
 class Data{
     static{
         this.volumeLevel = 1;
-        this.panLevel = 0;
+        this.stereoPanLevel = 0;
     }
 }
 
@@ -74,7 +79,7 @@ function main(){
 function switchProcessByMessage(message, sender, sendResponse){
     switch (message.content) {
         case "Get-Settings-Value":
-            const response = { volumeLevel: Data.volumeLevel, panLevel: Data.panLevel};
+            const response = { volumeLevel: Data.volumeLevel, stereoPanLevel: Data.stereoPanLevel};
             sendResponse(response);
             break;
         case "Post-Volume-Level":
@@ -85,10 +90,10 @@ function switchProcessByMessage(message, sender, sendResponse){
             })
             break;
         case "Post-Stereo-Pan-Level":
-            Data.panLevel = message.panLevel;
+            Data.stereoPanLevel = message.stereoPanLevel;
             VideoElementManager.getCollection((videoElement) => {
                 const controller = MediaAudioController.getOrCreate(videoElement);
-                controller.updateStereoPan(Data.panLevel);
+                controller.updateStereoPan(Data.stereoPanLevel);
             })
             break;
         default:

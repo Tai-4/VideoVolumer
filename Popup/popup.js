@@ -20,6 +20,11 @@ class Input extends ElementManager{
             get: function(){ return this.element.value; },
             set: function(value){ this.element.value = value; }
         };
+        this.stereoPanLevel = {
+            element: this.findByClassName("settings__stereo-pan-level-controller__slider"),
+            get: function(){ return this.element.value; },
+            set: function(value){ this.element.value = value; }
+        };
     }
 }
 
@@ -70,6 +75,7 @@ async function initialize(){
     await initializeUI();
     
     Input.volumeLevel.element.addEventListener("input", requestPostVolumeLevel, false);
+    Input.stereoPanLevel.element.addEventListener("input", requestPostStereoPanLevel, false);
 }
 
 async function getCurrentTab(){
@@ -91,8 +97,10 @@ function initializePageInfo(){
 
 async function initializeSettingsValue(){
     const settingsValue = await requestSettingsValue();
+
     Input.volumeLevel.set(settingsValue.volumeLevel);
     Display.volumePersent.set(settingsValue.volumeLevel * 10 * 10);
+    Input.stereoPanLevel.set(settingsValue.stereoPanLevel);
 }
 
 function requestSettingsValue(){
@@ -102,5 +110,10 @@ function requestSettingsValue(){
 
 function requestPostVolumeLevel(){
     const message = { content: "Post-Volume-Level", volumeLevel: Input.volumeLevel.get() };
+    MessagePassing.request(message);
+}
+
+function requestPostStereoPanLevel(){
+    const message = { content: "Post-Stereo-Pan-Level", stereoPanLevel: Input.stereoPanLevel.get() };
     MessagePassing.request(message);
 }
