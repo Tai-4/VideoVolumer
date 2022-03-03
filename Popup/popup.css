@@ -43,6 +43,7 @@ input[type=range]:focus-visible {
 .settings__volume-persent {
     display: flex;
     justify-content: space-between;
+    margin-bottom: 16px;
 }
 
 .settings__volume-persent__min, .settings__volume-persent__max {
@@ -62,3 +63,20 @@ input[type=range]:focus-visible {
     content: "%";
 }
 
+.settings__stereo-pan-level-controller__slider {
+    width: 100%;
+}
+
+.settings__stereo-pan-sign {
+    display: flex;
+    justify-content: space-between;
+}
+
+.settings__stereo-pan-sign__left, .settings__stereo-pan-sign__right {
+    color: #a0a0a0;
+}
+
+.settings__stereo-pan-sign__stereo-pan {
+    color: #303030;
+    font-weight: bold;
+}
