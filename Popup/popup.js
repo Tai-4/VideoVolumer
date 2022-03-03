@@ -8,8 +8,36 @@ class Binding{
 }
 
 class ElementManager{
+    static {
+        this._loadingAnimation = this._createLoadingAnimation();
+    }
+
+    static _createLoadingAnimation(){
+        const noImageBox = this.create("div", "loading-box page-info__item__favicon");
+        const noImageMark = this.create("div", "loading-box__mark");
+        noImageBox.appendChild(noImageMark);
+
+        return noImageBox;
+    }
+
     static findByClassName(className){
         return document.getElementsByClassName(className)[0];
+    }
+
+    static create(tagName, className = ""){
+        const element = document.createElement(tagName);
+        element.className = className;
+
+        return element;
+    }
+
+    static replaceToLoadingAnimation(replacedElement){
+        replacedElement.hidden = true;
+        this.insertBefore(this._loadingAnimation, replacedElement);
+    }
+
+    static insertBefore(insertElement, criteriaElement){
+        Display.pagefavicon.element.parentElement.insertBefore(insertElement, criteriaElement);
     }
 }
 
@@ -58,10 +86,38 @@ class MessagePassing{
             }
         });
     }
+
+    static requestSettingsValue(){
+        const message = { content: "Get-Settings-Value" };
+        return MessagePassing.request(message, true);
+    }
+    
+    static requestPostVolumeLevel(){
+        const message = { content: "Post-Volume-Level", volumeLevel: Input.volumeLevel.get() };
+        MessagePassing.request(message);
+    }
+    
+    static requestPostStereoPanLevel(){
+        const message = { content: "Post-Stereo-Pan-Level", stereoPanLevel: Input.stereoPanLevel.get() };
+        MessagePassing.request(message);
+    }
+}
+
+class TabManager{
+    static async getCurrentTab(){
+        const queryOptions = { active: true, currentWindow: true };
+        const tabList = await chrome.tabs.query(queryOptions);
+        const currentTab = tabList[0];
+        return currentTab;
+    }
 }
 
 class Data{
     static currentTab;
+
+    static async initialize(){
+        this.currentTab = await TabManager.getCurrentTab();
+    }
 }
 
 main();
@@ -71,18 +127,11 @@ async function main(){
 }
 
 async function initialize(){
-    Data.currentTab = await getCurrentTab();
+    await Data.initialize();
     await initializeUI();
     
-    Input.volumeLevel.element.addEventListener("input", requestPostVolumeLevel, false);
-    Input.stereoPanLevel.element.addEventListener("input", requestPostStereoPanLevel, false);
-}
-
-async function getCurrentTab(){
-    const queryOptions = { active: true, currentWindow: true };
-    const tabList = await chrome.tabs.query(queryOptions);
-    const currentTab = tabList[0];
-    return currentTab;
+    Input.volumeLevel.element.addEventListener("input", MessagePassing.requestPostVolumeLevel, false);
+    Input.stereoPanLevel.element.addEventListener("input", MessagePassing.requestPostStereoPanLevel, false);
 }
 
 async function initializeUI(){
@@ -91,29 +140,18 @@ async function initializeUI(){
 }
 
 function initializePageInfo(){
-    Display.pagefavicon.set(Data.currentTab.favIconUrl);
     Display.pageTitle.set(Data.currentTab.title);
+    if (Data.currentTab.favIconUrl){
+        Display.pagefavicon.set(Data.currentTab.favIconUrl);
+    } else {
+        ElementManager.replaceToLoadingAnimation(Display.pagefavicon.element);
+    }
 }
 
 async function initializeSettingsValue(){
-    const settingsValue = await requestSettingsValue();
+    const settingsValue = await MessagePassing.requestSettingsValue();
 
     Input.volumeLevel.set(settingsValue.volumeLevel);
     Display.volumePersent.set(settingsValue.volumeLevel * 10 * 10);
     Input.stereoPanLevel.set(settingsValue.stereoPanLevel);
-}
-
-function requestSettingsValue(){
-    const message = { content: "Get-Settings-Value" };
-    return MessagePassing.request(message, true);
-}
-
-function requestPostVolumeLevel(){
-    const message = { content: "Post-Volume-Level", volumeLevel: Input.volumeLevel.get() };
-    MessagePassing.request(message);
-}
-
-function requestPostStereoPanLevel(){
-    const message = { content: "Post-Stereo-Pan-Level", stereoPanLevel: Input.stereoPanLevel.get() };
-    MessagePassing.request(message);
 }
