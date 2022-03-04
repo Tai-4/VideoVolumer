@@ -37,7 +37,7 @@ class ElementManager{
     }
 
     static insertBefore(insertElement, criteriaElement){
-        Display.pagefavicon.element.parentElement.insertBefore(insertElement, criteriaElement);
+        criteriaElement.parentElement.insertBefore(insertElement, criteriaElement);
     }
 }
 
