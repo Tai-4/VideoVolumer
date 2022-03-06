@@ -7,16 +7,30 @@ p {
     margin: 0px;
 }
 
+.hidden {
+    display: none;
+}
+
 input[type=range]:focus-visible {
     outline: 0;
 }
 
-.settings__heading {
+.heading {
     margin: 0px;
     font-weight: 400;
     margin-bottom: 8px;
     padding-bottom: 1px;
     border-bottom: 1px solid rgb(221, 221, 221);
+}
+
+.alert-box {
+    border: 1.8px solid rgba(255, 67, 67, 0.4);
+    border-radius: 6px;
+    padding: 10px;
+}
+
+.alert-box__detail {
+    font-size: 110%;
 }
 
 .page-info {
