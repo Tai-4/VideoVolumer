@@ -78,25 +78,34 @@ function main(){
 
 function switchProcessByMessage(message, sender, sendResponse){
     switch (message.content) {
-        case "Get-Settings-Value":
+        case "Connect": {
+            const response = { isSucceeded: true };
+            sendResponse(response);
+            break;
+        }
+        case "Get-Settings-Value": {
             const response = { volumeLevel: Data.volumeLevel, stereoPanLevel: Data.stereoPanLevel};
             sendResponse(response);
             break;
-        case "Post-Volume-Level":
+        }
+        case "Post-Volume-Level": {
             Data.volumeLevel = message.volumeLevel;
             VideoElementManager.getCollection((videoElement) => {
                 const controller = MediaAudioController.getOrCreate(videoElement);
                 controller.updateVolume(Data.volumeLevel);
             })
             break;
-        case "Post-Stereo-Pan-Level":
+        }
+        case "Post-Stereo-Pan-Level": {
             Data.stereoPanLevel = message.stereoPanLevel;
             VideoElementManager.getCollection((videoElement) => {
                 const controller = MediaAudioController.getOrCreate(videoElement);
                 controller.updateStereoPan(Data.stereoPanLevel);
             })
             break;
-        default:
+        }
+        default: {
             throw new Error("Invalid message");
+        }
     }
 }
