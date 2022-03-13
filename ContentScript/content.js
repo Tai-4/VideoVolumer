@@ -73,20 +73,21 @@ class Data{
 main();
 
 function main(){
-    chrome.runtime.onMessage.addListener(switchProcessByMessage)
+    chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+        const response = switchProcessByMessage(message);
+        sendResponse(response);
+    })
 }
 
-function switchProcessByMessage(message, sender, sendResponse){
+function switchProcessByMessage(message){
     switch (message.content) {
         case "Connect": {
             const response = { isSucceeded: true };
-            sendResponse(response);
-            break;
+            return response;
         }
         case "Get-Settings-Value": {
             const response = { volumeLevel: Data.volumeLevel, stereoPanLevel: Data.stereoPanLevel};
-            sendResponse(response);
-            break;
+            return response;
         }
         case "Post-Volume-Level": {
             Data.volumeLevel = message.volumeLevel;
@@ -94,7 +95,7 @@ function switchProcessByMessage(message, sender, sendResponse){
                 const controller = MediaAudioController.getOrCreate(videoElement);
                 controller.updateVolume(Data.volumeLevel);
             })
-            break;
+            return;
         }
         case "Post-Stereo-Pan-Level": {
             Data.stereoPanLevel = message.stereoPanLevel;
@@ -102,7 +103,7 @@ function switchProcessByMessage(message, sender, sendResponse){
                 const controller = MediaAudioController.getOrCreate(videoElement);
                 controller.updateStereoPan(Data.stereoPanLevel);
             })
-            break;
+            return;
         }
         default: {
             throw new Error("Invalid message");
